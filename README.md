@@ -4,6 +4,8 @@ Carta de restaurante para móvil: un scroll con portada, índice de categorías 
 franjas triangulares y una ficha a pantalla completa por categoría. Diseñada a
 393 × 852 y pensada para abrirse desde un QR en mesa.
 
+**En vivo: https://alexestepagallego.github.io/carta-jose-villegas/**
+
 El repositorio tiene dos mitades:
 
 | | |

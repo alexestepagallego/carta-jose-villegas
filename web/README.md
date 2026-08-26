@@ -69,6 +69,30 @@ Dos cosas que el prototipo tenía y aquí están resueltas:
 
 `npm run prepare:logo` regenera `src/assets/logo.png` desde `../assets/logo.png`.
 
+## Despliegue
+
+Cada push a `main` dispara `.github/workflows/deploy.yml`, que construye `web/` y
+publica `dist/` en GitHub Pages:
+**https://alexestepagallego.github.io/carta-jose-villegas/**
+
+Pages sirve el sitio bajo `/carta-jose-villegas/`, no en la raíz del dominio, así
+que `site` y `base` se leen de `SITE_URL` y `BASE_PATH`. Las define el workflow a
+partir de `actions/configure-pages`; en local y en cualquier host con dominio
+propio se quedan vacías y el sitio vive en `/`, sin tocar nada.
+
+Dos detalles que se derivan de eso:
+
+- Los ficheros de `public/` no llevan el `base` puesto automáticamente:
+  `Base.astro` los prefija con `import.meta.env.BASE_URL`.
+- `manifest.webmanifest` usa rutas relativas, que se resuelven contra su propia
+  URL y funcionan con y sin `base`.
+
+Para probar en local la build tal cual sale en Pages:
+
+```bash
+SITE_URL=https://alexestepagallego.github.io BASE_PATH=/carta-jose-villegas npm run build
+```
+
 ## Pendiente
 
 - **Foto de fondo de la portada**: el cliente no la ha entregado. Cuando llegue, va
