@@ -2,11 +2,19 @@
 import { Image } from 'astro:assets';
 import logo from '../assets/logo.png';
 import { CATEGORIES, accent, tint, dishCount } from '../data/carta';
-import { layout, IDLE_PHOTO_SCALE, PHOTO_OFFSET } from '../lib/geometry';
+import {
+  layout,
+  stackShift,
+  activePhoto,
+  CANVAS_SCREENS,
+  IDLE_PHOTO_SCALE,
+  IDLE_PHOTO_OFFSET,
+} from '../lib/geometry';
 
 // Estado inicial (categoría 0 activa) resuelto en el build: la primera pintura
-// ya sale con la geometría correcta, sin salto al hidratar.
+// ya sale con la geometría y el desplazamiento correctos, sin salto al hidratar.
 const initial = layout(0, CATEGORIES.length);
+const initialShift = stackShift(initial, 0);
 ---
 
 <div class="cats">
@@ -19,16 +27,28 @@ const initial = layout(0, CATEGORIES.length);
       </div>
     </div>
 
-    <div class="bands">
+    <div
+      class="bands"
+      style={`--canvas-screens:${CANVAS_SCREENS};--shift:${initialShift}`}
+      data-bands
+    >
       {
         CATEGORIES.map((cat, i) => {
           const on = i === 0;
           const { clipPath, topEdge } = initial[i];
           const side = cat.side === 'left' ? 'side-l' : 'side-r';
-          const size = on ? { w: cat.w, h: cat.h } : {
-            w: Math.round(cat.w * IDLE_PHOTO_SCALE),
-            h: Math.round(cat.h * IDLE_PHOTO_SCALE),
-          };
+          // Activa: se escala con la franja y se ancla por abajo, para que
+          // desborde sobre la categoría siguiente. En reposo: bajo su borde superior.
+          const photo = on
+            ? activePhoto(initial[i], cat)
+            : {
+                width: `${Math.round(cat.w * IDLE_PHOTO_SCALE)}px`,
+                height: `${Math.round(cat.h * IDLE_PHOTO_SCALE)}px`,
+                top: `calc(${topEdge}% + ${IDLE_PHOTO_OFFSET}px)`,
+              };
+          const photoStyle = Object.entries(photo)
+            .map(([k, v]) => `${k}:${v}`)
+            .join(';');
           const platos = dishCount(cat);
 
           return (
@@ -42,14 +62,16 @@ const initial = layout(0, CATEGORIES.length);
                 style={`clip-path:${clipPath}`}
                 data-band
                 data-index={i}
-                aria-label={`${cat.name} — ver los ${platos} platos`}
-                aria-haspopup="dialog"
+                aria-label={on ? `${cat.name} — ver los ${platos} platos` : `Ir a ${cat.name}`}
+                aria-haspopup={on ? 'dialog' : undefined}
+                data-label-active={`${cat.name} — ver los ${platos} platos`}
+                data-label-idle={`Ir a ${cat.name}`}
               />
               <Image
                 src={cat.photo}
                 alt=""
                 class:list={['photo', side, { 'is-on': on }]}
-                style={`top:calc(${topEdge}% + ${on ? PHOTO_OFFSET.active : PHOTO_OFFSET.idle}px);width:${size.w}px;height:${size.h}px`}
+                style={photoStyle}
                 width={cat.w}
                 height={cat.h}
                 densities={[2, 3]}

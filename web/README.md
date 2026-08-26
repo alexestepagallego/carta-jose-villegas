@@ -51,6 +51,31 @@ scripts/prepare-logo.mjs   Recorta el fondo del logo con alfa real
   que cada cuña responde solo en su área. Las fichas son `role="dialog"` y se
   cierran también con `Escape`.
 
+## El índice de categorías
+
+Las franjas no se reparten una pantalla, sino un lienzo de **1,8 pantallas**
+(`CANVAS_SCREENS`), que se desplaza en vertical para dejar centrada la activa. Con
+el lienzo de una sola pantalla del prototipo cabían las cinco categorías de golpe
+y nada invitaba a deslizar; ahora nunca se ven más de tres a la vez —medido en
+375 × 667, 393 × 852 y 412 × 915— así que hay que deslizar para recorrer la carta.
+
+El reparto de la activa baja de 0,40 a **0,28** para compensar: sobre 1,8 pantallas
+sigue midiendo 1,56 × una inactiva, o sea que el salto se sigue notando, y el alto
+sobrante se va a las inactivas, que son las que empujan la carta fuera de pantalla.
+
+La foto de la categoría activa se ancla al borde **inferior** de su franja, no al
+superior. Así conserva el desbordamiento sobre la categoría siguiente que pide el
+diseño sea cual sea el alto de la franja. Mantiene su tamaño nominal: escalarla con
+la franja la hacía invadir el nombre de la categoría siguiente, colisión que el
+diseño evita alternando los lados.
+
+**Tocar una franja tiene dos pasos.** Un toque sobre una franja en reposo solo la
+trae al frente —se amplía, toma color y aparece su CTA—; la ficha se abre con un
+segundo toque, ya sobre la franja activa. El primer toque lleva el scroll a su
+anclaje, así que la categoría activa la sigue decidiendo la posición del scroll y
+no hay dos fuentes de verdad. La etiqueta accesible acompaña: `Ir a ROSCAS` en
+reposo, `ROSCAS — ver los 6 platos` cuando ya está activa.
+
 ## Diferencias respecto al prototipo
 
 Dos cosas que el prototipo tenía y aquí están resueltas:
