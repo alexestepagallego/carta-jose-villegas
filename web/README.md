@@ -53,33 +53,58 @@ scripts/prepare-logo.mjs   Recorta el fondo del logo con alfa real
 
 ## El bucle de fondo de la portada
 
-Detrás del logo va un vídeo corto en bucle, a baja opacidad. Lo que hay ahora es
-un **marcador de posición** generado con `npm run placeholder:video`
-(`scripts/make-placeholder-video.mjs`): un resplandor cálido que deriva despacio,
-con el texto de aviso encima. No es contenido definitivo.
+Detrás del logo va un vídeo corto en bucle a baja opacidad: un pizzero metiendo
+una pizza en un horno de leña. El original del cliente está en
+`../assets/portada.mp4`; los ficheros que sirve la web salen de `npm run portada`
+(`scripts/encode-hero-video.mjs`), que hace cuatro cosas:
 
-**Para poner el vídeo real** deja los ficheros en `public/portada/` y cambia el
-nombre en la constante `video` de `components/Hero.astro`. Nada más.
+1. **Quita el audio.** El autoplay exige silencio y la pista solo pesa.
+2. **Cierra el bucle con un fundido cruzado.** El vídeo generado empieza con la
+   pizza en la pala y acaba con ella dentro del horno, así que el corte saltaba a
+   la vista: 27,1 de diferencia media por píxel, frente a los 16,1 que cambia la
+   escena por sí sola entre dos instantes cualesquiera. Solapando el último
+   segundo sobre el primero baja a 4,8, por debajo del ruido de la propia escena.
+3. **Codifica** H.264 `yuv420p` con `+faststart` —lo único que iOS reproduce de
+   forma fiable sin esperar a la descarga completa— y un VP9 al lado. El VP9 va
+   con CRF alto a propósito: al 22 % de opacidad los artefactos no llegan a
+   pantalla, y a calidad alta pesaba *más* que el H.264, que al ir primero en las
+   fuentes habría sido el peor de los dos mundos. Quedan en 944 kB y 636 kB.
+4. **Saca el póster**, que es lo que se ve mientras carga y lo que queda fijo con
+   movimiento reducido.
 
-Qué debe cumplir el fichero:
+Para cambiar el vídeo: sustituye `assets/portada.mp4` y lanza `npm run portada`.
+Si el nuevo se llama distinto, cambia también la constante `video` de
+`components/Hero.astro`.
 
-| | |
-|---|---|
-| Formato | **MP4 H.264, `yuv420p`, con `+faststart`.** iOS no reproduce otra cosa de forma fiable, y `faststart` evita esperar a la descarga completa. Un WebM VP9 al lado es opcional y ahorra bastante. |
-| Proporción | Vertical, 9:16 (720 × 1280 va sobrado). Se recorta con `object-fit: cover`, así que lo importante debe quedar centrado. |
-| Duración | 4–8 s, y que **el último fotograma enlace con el primero**: el bucle se ve entero muchas veces. |
-| Audio | Ninguno. El autoplay exige silencio y la pista solo añade peso. |
-| Peso | Por debajo de ~1,5 MB. Se carga en la primera pantalla, muchas veces con datos móviles en el propio local. |
-| Póster | Un `.jpg` con el mismo nombre. Es lo que se ve mientras carga y lo que queda fijo con movimiento reducido. |
+**Qué debe cumplir un vídeo nuevo:** vertical 9:16 (720 × 1280 va sobrado), con lo
+importante centrado —los móviles actuales son más altos que 16:9 y `object-fit:
+cover` recorta un 18–20 % de los lados—, 5–10 s y por debajo de ~1,5 MB. Y sobre
+todo: **escena oscura con luces brillantes**. Al 22 % de opacidad sobre el fondo de
+la carta, una llama llega a 1,65:1 y la masa iluminada a 1,86:1, pero un tono medio
+se queda en 1,30:1 y una sombra en 1,05:1, o sea invisible. Una cocina bien
+iluminada no se vería.
 
-La presencia se ajusta con `--hero-video-opacity` (0,22). Sobre fondo oscuro hace
-falta algo más que el 0,14 que pedía el diseño sobre papel claro, porque el negro
-se come la imagen.
+### El velo
 
-El vídeo va en autoplay, y eso no vale para quien ha pedido reducir el movimiento:
-`lib/hero.ts` lo detiene y deja el póster, atendiendo también al cambio de
-preferencia en caliente. Si el navegador rechaza el autoplay, el póster se queda y
-la portada funciona igual.
+La presencia del vídeo se ajusta con `--hero-video-opacity` (0,22), y el velo de
+`.hero-veil` es lo que mantiene legible el contenido por encima.
+
+Hubo que recalibrarlo: el degradado del diseño abría su ventana clara en el 45 %,
+justo donde cae el kicker (37–40 %). Con una foto estática y tenue no importaba;
+con fuego detrás, el kicker se caía a 2,8:1. Ahora la ventana clara va arriba
+(0–28 %), donde están las llamas y el arco y no hay texto encima.
+
+Con el velo solo no bastaba —subirlo del 0,48 al 0,78 apenas movía el kicker de
+3,99:1 a 4,11:1, y a cambio se comía el vídeo—, así que el kicker sube un nivel de
+gris, a `--ink-2`. En la portada está justificado: es el único sitio donde ese
+estilo tiene imagen en movimiento detrás y no un fondo plano. Medido a lo largo de
+todo el bucle, el peor fotograma deja el kicker en **5,17:1** —el mismo 5,19:1 que
+tenía en el diseño original sobre fondo plano— y la llamada en 14,0:1.
+
+El autoplay no vale para quien ha pedido reducir el movimiento: `lib/hero.ts`
+detiene el vídeo y deja el póster, atendiendo también al cambio de preferencia en
+caliente. Si el navegador rechaza el autoplay, el póster se queda y la portada
+funciona igual.
 
 ## Paleta
 
@@ -206,8 +231,6 @@ SITE_URL=https://alexestepagallego.github.io BASE_PATH=/carta-jose-villegas npm 
 
 ## Pendiente
 
-- **Vídeo de fondo de la portada**: lo graba el cliente. Hasta que llegue hay un
-  marcador de posición generado; cómo sustituirlo, más arriba.
 - **Alérgenos**: se retiraron a propósito del prototipo porque deducirlos de los
   ingredientes producía afirmaciones falsas. Hace falta la tabla oficial por plato
   del restaurante antes de mostrarlos.

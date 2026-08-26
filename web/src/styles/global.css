@@ -117,11 +117,18 @@ body {
   position: absolute;
   inset: 0;
   pointer-events: none;
+  /* Protege el contenido del bucle de fondo. La ventana clara va arriba (0–28 %),
+     donde están las llamas y el arco del horno y no hay texto encima; a partir
+     del 34 % sube, porque ahí empiezan el kicker y el logo. El degradado original
+     abría justo en el 45 %, es decir, sobre el kicker: calibrado para una foto
+     estática y tenue, con el fuego detrás lo dejaba en 2,8:1. */
   background: linear-gradient(
     180deg,
-    rgba(var(--paper-rgb), 0.35) 0%,
-    rgba(var(--paper-rgb), 0) 45%,
-    rgba(var(--paper-rgb), 0.75) 100%
+    rgba(var(--paper-rgb), 0.28) 0%,
+    rgba(var(--paper-rgb), 0.06) 22%,
+    rgba(var(--paper-rgb), 0.48) 42%,
+    rgba(var(--paper-rgb), 0.72) 70%,
+    rgba(var(--paper-rgb), 0.85) 100%
   );
 }
 
@@ -133,7 +140,10 @@ body {
   font: 500 11px / 1 var(--mono);
   letter-spacing: 0.34em;
   text-transform: uppercase;
-  color: var(--faint);
+  /* Un nivel por encima del --faint del diseño: aquí tiene imagen en movimiento
+     detrás, no un fondo plano, y con el gris más tenue de la paleta se caía a
+     2,8:1 cuando las llamas pasaban por detrás. */
+  color: var(--ink-2);
 }
 
 .hero-logo {

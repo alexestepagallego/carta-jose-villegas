@@ -8,12 +8,12 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 /**
  * Bucle de fondo de la portada.
  *
- * MARCADOR DE POSICIÓN: `public/portada/placeholder.*` es un relleno generado
- * con `npm run placeholder:video`, no el vídeo definitivo. Para poner el real
- * —el chef amasando, metiendo la masa al horno…— deja los ficheros en
- * `public/portada/` y cambia solo este nombre. Formatos y proporción en el README.
+ * Los ficheros de `public/portada/` los genera `npm run portada` a partir del
+ * original del cliente en `assets/portada.mp4`: quita el audio, cierra el bucle
+ * con un fundido cruzado y saca el MP4, el WebM y el póster. Para cambiar el
+ * vídeo, sustituye el original y vuelve a lanzarlo.
  */
-const video = 'placeholder';
+const video = 'portada';
 ---
 
 <section class="hero">

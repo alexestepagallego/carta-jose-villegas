@@ -9,7 +9,7 @@
     "preview": "astro preview",
     "check": "astro check",
     "prepare:logo": "node scripts/prepare-logo.mjs ../assets/logo.png src/assets/logo.png",
-    "placeholder:video": "node scripts/make-placeholder-video.mjs"
+    "portada": "node scripts/encode-hero-video.mjs ../assets/portada.mp4 portada"
   },
   "dependencies": {
     "@fontsource-variable/archivo": "^5.3.0",
