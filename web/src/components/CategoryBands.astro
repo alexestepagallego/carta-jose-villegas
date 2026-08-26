@@ -1,0 +1,90 @@
+---
+import { Image } from 'astro:assets';
+import logo from '../assets/logo.png';
+import { CATEGORIES, accent, tint, dishCount } from '../data/carta';
+import { layout, IDLE_PHOTO_SCALE, PHOTO_OFFSET } from '../lib/geometry';
+
+// Estado inicial (categoría 0 activa) resuelto en el build: la primera pintura
+// ya sale con la geometría correcta, sin salto al hidratar.
+const initial = layout(0, CATEGORIES.length);
+---
+
+<div class="cats">
+  <div class="stage">
+    <div class="bar" data-bar>
+      <div class="bar-inner">
+        <div class="bar-logo">
+          <Image src={logo} alt="Pizza José Villegas" width={104} height={56} densities={[2, 3]} format="webp" />
+        </div>
+      </div>
+    </div>
+
+    <div class="bands">
+      {
+        CATEGORIES.map((cat, i) => {
+          const on = i === 0;
+          const { clipPath, topEdge } = initial[i];
+          const side = cat.side === 'left' ? 'side-l' : 'side-r';
+          const size = on ? { w: cat.w, h: cat.h } : {
+            w: Math.round(cat.w * IDLE_PHOTO_SCALE),
+            h: Math.round(cat.h * IDLE_PHOTO_SCALE),
+          };
+          const platos = dishCount(cat);
+
+          return (
+            <div
+              class="cat"
+              style={`--band-accent:${accent(cat.hue)};--band-tint:${tint(cat.hue)}`}
+            >
+              <button
+                type="button"
+                class:list={['band', { 'is-on': on }]}
+                style={`clip-path:${clipPath}`}
+                data-band
+                data-index={i}
+                aria-label={`${cat.name} — ver los ${platos} platos`}
+                aria-haspopup="dialog"
+              />
+              <Image
+                src={cat.photo}
+                alt=""
+                class:list={['photo', side, { 'is-on': on }]}
+                style={`top:calc(${topEdge}% + ${on ? PHOTO_OFFSET.active : PHOTO_OFFSET.idle}px);width:${size.w}px;height:${size.h}px`}
+                width={cat.w}
+                height={cat.h}
+                densities={[2, 3]}
+                format="webp"
+                quality={80}
+                loading={i === 0 ? 'eager' : 'lazy'}
+                data-photo
+                data-w={cat.w}
+                data-h={cat.h}
+              />
+              <div
+                class:list={['name', side, { 'is-on': on }]}
+                style={`top:calc(${topEdge}% + 11px)`}
+                data-name
+                aria-hidden="true"
+              >
+                {cat.name}
+              </div>
+              <div
+                class:list={['more', side, { 'is-on': on }]}
+                style={`top:calc(${topEdge}% + 47px)`}
+                data-more
+                aria-hidden="true"
+              >
+                {`Ver los ${platos} platos →`}
+              </div>
+            </div>
+          );
+        })
+      }
+    </div>
+  </div>
+
+  {/* Solo anclajes del scroll magnético: una pantalla por categoría. */}
+  <div class="snaps">
+    {CATEGORIES.map(() => <div />)}
+  </div>
+</div>

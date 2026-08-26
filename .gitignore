@@ -1,0 +1,19 @@
+# dependencias
+node_modules/
+
+# salida de build
+dist/
+.astro/
+
+# entorno
+.env
+.env.production
+.vercel
+
+# sistema
+.DS_Store
+*.log
+
+# capturas sueltas de la carpeta de trabajo
+Captura de pantalla *.png
+Screenshot *.png

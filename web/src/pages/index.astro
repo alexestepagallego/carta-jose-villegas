@@ -1,0 +1,24 @@
+---
+import Base from '../layouts/Base.astro';
+import Hero from '../components/Hero.astro';
+import CategoryBands from '../components/CategoryBands.astro';
+import CategorySheet from '../components/CategorySheet.astro';
+import { CATEGORIES } from '../data/carta';
+---
+
+<Base
+  title="Carta · Pizza José Villegas"
+  description="Carta de Pizza José Villegas: pizzas, bocadillos XXL, roscas, paninis XXL y calzones."
+>
+  <main class="scroller" data-scroller>
+    <Hero />
+    <CategoryBands />
+  </main>
+
+  {CATEGORIES.map((category, index) => <CategorySheet category={category} index={index} />)}
+</Base>
+
+<script>
+  import { initMenu } from '../lib/menu';
+  initMenu();
+</script>

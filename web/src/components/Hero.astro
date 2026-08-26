@@ -1,0 +1,44 @@
+---
+import { Image } from 'astro:assets';
+import logo from '../assets/logo.png';
+---
+
+<section class="hero">
+  {/*
+    Foto de fondo del local: pendiente de entrega por el cliente.
+    Al recibirla, déjala en src/assets/local.jpg y descomenta:
+
+    <div class="hero-bg">
+      <Image src={local} alt="" widths={[600, 900, 1200]} sizes="100vw" format="webp" quality={70} />
+    </div>
+  */}
+  <div class="hero-veil"></div>
+
+  <p class="hero-kicker">Calzone · Pizzas · Roscas</p>
+
+  <div class="hero-logo">
+    <Image
+      src={logo}
+      alt="Pizza José Villegas"
+      widths={[330, 660, 990]}
+      sizes="min(80vw, 330px)"
+      format="webp"
+      quality={85}
+      fetchpriority="high"
+    />
+  </div>
+
+  <div class="hero-cta">
+    <p>Descubre nuestra carta</p>
+    <svg class="hero-arrow" width="26" height="74" viewBox="0 0 26 74" fill="none" aria-hidden="true">
+      <path d="M13 74 L13 4" stroke="#16130f" stroke-width="2" stroke-linecap="round" />
+      <path
+        d="M3 15 L13 3 L23 15"
+        stroke="#16130f"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </svg>
+  </div>
+</section>

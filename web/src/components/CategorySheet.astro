@@ -1,0 +1,67 @@
+---
+import type { Category } from '../data/carta';
+import { accent } from '../data/carta';
+
+interface Props {
+  category: Category;
+  index: number;
+}
+
+const { category: cat, index } = Astro.props;
+---
+
+<div
+  class="sheet"
+  style={`--cat-accent:${accent(cat.hue)}`}
+  role="dialog"
+  aria-modal="true"
+  aria-label={`Carta: ${cat.name}`}
+  data-sheet
+  data-index={index}
+>
+  <div class="sheet-bar">
+    <button type="button" class="sheet-back" aria-label="Volver a las categorías" data-close>←</button>
+    <h2 class="sheet-title">{cat.name}</h2>
+  </div>
+
+  <div class="sheet-body">
+    {
+      cat.intro && (
+        <div class="intro">
+          {cat.intro.map(([label, price]) => (
+            <div class="intro-row">
+              <span class="intro-label">{label}</span>
+              <span class="intro-lead" aria-hidden="true" />
+              <span class="intro-price">{price}</span>
+            </div>
+          ))}
+        </div>
+      )
+    }
+
+    {
+      cat.groups.map((group) => (
+        <>
+          {group.title && <h3 class="group-title">{group.title}</h3>}
+          {group.items.map((item) => (
+            <div class="dish">
+              <div class="dish-main">
+                <p class="dish-name">{item.name}</p>
+                <p class="dish-ing">{item.ingredients}</p>
+              </div>
+              <p class="dish-price">
+                <b>{item.price || '—'}</b>
+                {group.alt && item.price && <span>{group.alt}</span>}
+              </p>
+            </div>
+          ))}
+          {group.note && <p class="group-note">{group.note}</p>}
+        </>
+      ))
+    }
+
+    {cat.footnote && <p class="cat-note">{cat.footnote}</p>}
+
+    <p class="disclaimer">Consulta al personal sobre alérgenos e intolerancias</p>
+  </div>
+</div>
