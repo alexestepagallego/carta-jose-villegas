@@ -22,10 +22,13 @@ import {
   activeWeights,
   photoPlacement,
   photoFilter,
+  fillOpacity,
 } from './geometry';
 
 interface CategoryParts {
   band: HTMLElement;
+  /** Relleno fotográfico de la cuña, recortado por el clip-path del botón. */
+  fill: HTMLElement;
   photo: HTMLElement;
   name: HTMLElement;
   more: HTMLElement;
@@ -78,6 +81,7 @@ export function initMenu(root: ParentNode = document): () => void {
     const photo = pick('[data-photo]');
     return {
       band: pick('[data-band]'),
+      fill: pick('[data-fill]'),
       photo,
       name: pick('[data-name]'),
       more: pick('[data-more]'),
@@ -117,9 +121,14 @@ export function initMenu(root: ParentNode = document): () => void {
     parts.forEach((part, i) => {
       const on = i === active;
       const weight = weights[i];
-      const { clipPath, topEdge } = geometry[i];
+      const { clipPath, topEdge, bottomEdge } = geometry[i];
 
       part.band.style.clipPath = clipPath;
+
+      // El relleno se ciñe a la caja de su franja; la cuña la recorta el botón.
+      part.fill.style.top = `${topEdge}%`;
+      part.fill.style.height = `${(bottomEdge - topEdge).toFixed(3)}%`;
+      part.fill.style.opacity = String(fillOpacity(weight));
 
       const photo = photoPlacement(geometry[i], part, weight);
       Object.assign(part.photo.style, photo);

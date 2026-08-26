@@ -14,6 +14,13 @@ import bocadillo from '../assets/bocadillo.png';
 import rosca from '../assets/rosca.png';
 import panini from '../assets/panini.png';
 import calzone from '../assets/calzone.png';
+// Relleno de la franja: la zona con textura de cada foto, recortada por
+// scripts/make-band-fills.mjs. Ver el README.
+import pizzaFill from '../assets/fills/pizza.jpg';
+import bocadilloFill from '../assets/fills/bocadillo.jpg';
+import roscaFill from '../assets/fills/rosca.jpg';
+import paniniFill from '../assets/fills/panini.jpg';
+import calzoneFill from '../assets/fills/calzone.jpg';
 
 export interface Dish {
   name: string;
@@ -39,6 +46,8 @@ export interface Category {
   /** Tono oklch del acento de la categoría. */
   hue: number;
   photo: ImageMetadata;
+  /** Foto que rellena la cuña de la franja, a baja opacidad. */
+  fill: ImageMetadata;
   /** Tamaño nominal en px de la foto cuando la franja está activa. */
   w: number;
   h: number;
@@ -58,6 +67,7 @@ export const CATEGORIES: Category[] = [
     name: 'PIZZAS',
     hue: 38,
     photo: pizza,
+    fill: pizzaFill,
     w: 196,
     h: 218,
     side: 'left',
@@ -121,6 +131,7 @@ export const CATEGORIES: Category[] = [
     name: 'BOCADILLOS XXL',
     hue: 145,
     photo: bocadillo,
+    fill: bocadilloFill,
     w: 268,
     h: 150,
     side: 'right',
@@ -145,6 +156,7 @@ export const CATEGORIES: Category[] = [
     name: 'ROSCAS',
     hue: 78,
     photo: rosca,
+    fill: roscaFill,
     w: 194,
     h: 194,
     side: 'left',
@@ -166,6 +178,7 @@ export const CATEGORIES: Category[] = [
     name: 'PANINIS XXL',
     hue: 300,
     photo: panini,
+    fill: paniniFill,
     w: 248,
     h: 200,
     side: 'right',
@@ -186,6 +199,7 @@ export const CATEGORIES: Category[] = [
     name: 'CALZONES',
     hue: 195,
     photo: calzone,
+    fill: calzoneFill,
     w: 218,
     h: 176,
     side: 'left',

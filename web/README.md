@@ -149,6 +149,33 @@ diseño sea cual sea el alto de la franja. Mantiene su tamaño nominal: escalarl
 la franja la hacía invadir el nombre de la categoría siguiente, colisión que el
 diseño evita alternando los lados.
 
+### El relleno fotográfico de las cuñas
+
+Cada cuña lleva de fondo una foto de su categoría a baja opacidad, que sube
+cuando la categoría se ilumina. La imagen va **dentro del `<button>` de la
+franja**, así la recorta el mismo `clip-path` que dibuja la cuña y no hay que
+duplicar la geometría en ningún sitio.
+
+Las fotos salen de las que ya entregó el cliente, no de un banco de imágenes.
+Es la web pública de un restaurante y lo que hay en abierto para comida es casi
+todo CC BY-SA: obliga a crédito visible con nombre y licencia, y arrastra el
+"compartir igual" sobre el diseño. Las del cliente tienen los derechos resueltos
+y además son de la categoría exacta y de la misma estética.
+
+Como son recortes con transparencia, puestas de fondo se verían como una silueta
+flotando. `npm run fills` (`scripts/make-band-fills.mjs`) resuelve eso: busca en
+cada una la mayor caja cuadrada centrada que sea casi toda opaca —la zona con
+textura de comida— y esa es la que rellena la cuña. Sale queso y pepperoni en
+pizzas, la miga del bocadillo, el azúcar de la rosca, el bacon del panini y la
+masa del calzone. La búsqueda va sobre una imagen integral, así que consultar la
+cobertura de cualquier caja cuesta lo mismo sea del tamaño que sea.
+
+La opacidad (`fillOpacity`) la limita el CTA, que es monoespaciada de 10 px sobre
+la propia cuña. Sobre fondo casi negro una foto clara sube mucho aunque vaya muy
+transparente: al 0,16 el CTA se caía a 3,8:1. Con 0,09 se queda en **4,8:1**, que
+es lo que pide un texto de ese tamaño, y la foto se sigue leyendo. En reposo baja
+a 0,03, apenas un susurro, para que al activarse no dé un salto.
+
 **El índice va ligado a la posición del scroll, no a transiciones CSS.** La
 posición se lee como un número continuo (2,4 = "entre la 2 y la 3") y las franjas
 se redibujan por fotograma; encima, la posición dibujada persigue a la real con un

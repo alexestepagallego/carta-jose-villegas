@@ -290,6 +290,19 @@ body {
   border-color: var(--band-accent);
 }
 
+/* Va DENTRO del botón a propósito: así lo recorta el mismo clip-path que dibuja
+   la cuña, sin duplicar la geometría. Conserva el color de la foto —solo baja de
+   opacidad— y se ciñe a la caja de su franja, que le fija el bucle de render. */
+.band-fill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  width: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  user-select: none;
+}
+
 /* Al activarse, la foto desborda la franja por abajo y se superpone a la
    siguiente categoría: es intencionado. */
 .photo {

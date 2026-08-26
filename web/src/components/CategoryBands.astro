@@ -8,6 +8,7 @@ import {
   activeWeights,
   photoPlacement,
   photoFilter,
+  fillOpacity,
   CANVAS_SCREENS,
 } from '../lib/geometry';
 
@@ -60,7 +61,20 @@ const initialWeights = activeWeights(0, CATEGORIES.length);
                 aria-haspopup={on ? 'dialog' : undefined}
                 data-label-active={`${cat.name} — ver los ${platos} platos`}
                 data-label-idle={`Ir a ${cat.name}`}
-              />
+              >
+                <Image
+                  src={cat.fill}
+                  alt=""
+                  class="band-fill"
+                  style={`top:${initial[i].topEdge}%;height:${(initial[i].bottomEdge - initial[i].topEdge).toFixed(3)}%;opacity:${fillOpacity(initialWeights[i])}`}
+                  width={480}
+                  densities={[2]}
+                  format="webp"
+                  quality={72}
+                  loading={i === 0 ? 'eager' : 'lazy'}
+                  data-fill
+                />
+              </button>
               <Image
                 src={cat.photo}
                 alt=""

@@ -165,6 +165,18 @@ export function photoPlacement(
  */
 const IDLE_BRIGHTNESS = 1.55;
 
+/**
+ * Opacidad del relleno fotográfico de la cuña.
+ *
+ * El techo lo marca el CTA, que es monoespaciada de 10 px sobre la propia cuña.
+ * Sobre fondo casi negro una foto clara sube mucho aunque vaya muy transparente:
+ * al 0,16 el CTA se caía a 3,8:1. Con 0,09 se queda en 4,8:1, que es lo que pide
+ * un texto de ese tamaño, y la foto se sigue leyendo.
+ */
+export function fillOpacity(weight: number): number {
+  return lerp(0.03, 0.09, weight);
+}
+
 /** Filtro de la foto: gris y tenue en reposo, limpia cuando está activa. */
 export function photoFilter(weight: number): string {
   const grey = (1 - weight).toFixed(3);
