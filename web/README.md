@@ -51,6 +51,31 @@ scripts/prepare-logo.mjs   Recorta el fondo del logo con alfa real
   que cada cuña responde solo en su área. Las fichas son `role="dialog"` y se
   cierran también con `Escape`.
 
+## Paleta
+
+La carta va en **oscuro**. La paleta conserva el tono cálido del papel original
+—hue 80 en oklch, no un gris neutro— para que siga leyéndose como carta de
+restaurante y no como panel de administración. Los tokens están en
+`styles/global.css`; los acentos de categoría, en `data/carta.ts`.
+
+Sobre fondo oscuro los acentos necesitan más luminosidad: `oklch(0.56 0.16 H)`
+pasa a `oklch(0.72 0.15 H)`. Medido sobre la página renderizada, los cinco quedan
+entre 7,1:1 y 8,4:1 contra el fondo y entre 6,2:1 y 7,1:1 contra el tinte de su
+franja activa. En la ficha de platos: nombre y precio 16,3:1, ingredientes 7,6:1,
+cabecera de subgrupo 7,2:1, notas 5,2:1.
+
+Todos los niveles contrastan igual o mejor que en la versión clara, que dejaba los
+nombres inactivos en 2,4:1 y el pie de alérgenos en 2,3:1; aquí suben a 4,1:1 y
+3,4:1 sin dejar de ser secundarios.
+
+Un detalle que no se traslada solo: en reposo la foto de categoría se atenúa con
+`opacity`, que sobre fondo oscuro funde hacia el negro y la convertía en un
+borrón. Se le sube el brillo antes de atenuarla (`IDLE_BRIGHTNESS` en
+`lib/geometry.ts`) para que vuelva a leerse como el fantasma tenue del diseño.
+
+El logo no necesita tratamiento: la elipse negra se funde con el fondo y lo
+sostienen el aro dorado y la rotulación.
+
 ## El índice de categorías
 
 Las franjas no se reparten una pantalla, sino un lienzo de **1,8 pantallas**

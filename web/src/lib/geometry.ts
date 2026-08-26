@@ -156,7 +156,19 @@ export function photoPlacement(
   };
 }
 
-/** Filtro de la foto: gris y apagada en reposo, limpia cuando está activa. */
+/**
+ * Cuánto se aclara la foto en reposo antes de atenuarla.
+ *
+ * Sobre fondo oscuro, `opacity` funde hacia el negro: la foto en gris se hundía
+ * en el fondo y quedaba como un borrón. Subiéndole el brillo antes de atenuarla
+ * vuelve a leerse como el fantasma tenue que buscaba el diseño.
+ */
+const IDLE_BRIGHTNESS = 1.55;
+
+/** Filtro de la foto: gris y tenue en reposo, limpia cuando está activa. */
 export function photoFilter(weight: number): string {
-  return `grayscale(${(1 - weight).toFixed(3)}) opacity(${lerp(0.5, 1, weight).toFixed(3)})`;
+  const grey = (1 - weight).toFixed(3);
+  const brightness = lerp(IDLE_BRIGHTNESS, 1, weight).toFixed(3);
+  const alpha = lerp(0.55, 1, weight).toFixed(3);
+  return `grayscale(${grey}) brightness(${brightness}) opacity(${alpha})`;
 }

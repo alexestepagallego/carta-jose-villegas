@@ -1,19 +1,30 @@
 /* ------------------------------------------------------------------
    Tokens del diseño. Sin sombras en toda la carta.
+
+   Paleta oscura. Conserva el tono cálido del papel original (hue 80 en oklch)
+   en vez de un gris neutro, para que siga leyéndose como carta de restaurante
+   y no como panel de administración. Todos los niveles de texto contrastan
+   igual o mejor que en la versión clara: el papel dejaba los nombres inactivos
+   en 2,4:1 y las notas al pie en 2,3:1, aquí suben a 4,1:1 y 3,4:1 sin dejar
+   de ser secundarios.
 ------------------------------------------------------------------ */
 :root {
-  --paper: #fbfaf8;
-  --ink: #16130f;
-  --ink-2: #6f675e;
-  --grey: #a8a29b;
-  --grey-line: #c9c3bb;
-  --line: #e7e3dd;
-  --line-strong: #ddd8d1;
-  --line-soft: #f1ede7;
-  --line-dot: #d8d2ca;
-  --faint: #8a827a;
-  --faint-2: #b0a79c;
-  --note-bg: #f4f1eb;
+  --paper: #13110f;
+  /* El velo de la portada se funde con el fondo: hace falta en componentes. */
+  --paper-rgb: 19, 17, 15;
+  --ink: #f0eeeb;
+  --ink-2: #a8a49e;
+  --grey: #78746e;
+  --grey-line: #3a3833;
+  --line: #2a2926;
+  --line-strong: #3f3d38;
+  --line-soft: #201f1d;
+  --line-dot: #3a3833;
+  --faint: #898680;
+  --faint-2: #6c6863;
+  --note-bg: #1f1d19;
+  /* Superficie ligeramente elevada: el botón de volver de la ficha. */
+  --surface: #211f1b;
 
   /* Alto de la cabecera con el logo. Lo descuenta la zona de franjas. */
   --bar-h: 92px;
@@ -101,9 +112,9 @@ body {
   pointer-events: none;
   background: linear-gradient(
     180deg,
-    rgba(251, 250, 248, 0.35) 0%,
-    rgba(251, 250, 248, 0) 45%,
-    rgba(251, 250, 248, 0.75) 100%
+    rgba(var(--paper-rgb), 0.35) 0%,
+    rgba(var(--paper-rgb), 0) 45%,
+    rgba(var(--paper-rgb), 0.75) 100%
   );
 }
 
@@ -377,7 +388,7 @@ body {
   padding: 0;
   border: 1px solid var(--line-strong);
   border-radius: 999px;
-  background: #fff;
+  background: var(--surface);
   font-size: 19px;
   line-height: 1;
   color: var(--ink);

@@ -209,5 +209,12 @@ export const CATEGORIES: Category[] = [
 export const dishCount = (c: Category): number =>
   c.groups.reduce((n, g) => n + g.items.length, 0);
 
-export const accent = (hue: number): string => `oklch(0.56 0.16 ${hue})`;
-export const tint = (hue: number): string => `oklch(0.97 0.022 ${hue})`;
+/**
+ * Acento de la categoría. Sobre el fondo oscuro hace falta subir la luminosidad
+ * (0,56 → 0,72 en oklch): así los cinco tonos quedan entre 7,1:1 y 8,4:1 de
+ * contraste, frente a los 4,2–4,8:1 que daban sobre el papel claro.
+ */
+export const accent = (hue: number): string => `oklch(0.72 0.15 ${hue})`;
+
+/** Fondo de la franja activa: un tinte apenas por encima del fondo. */
+export const tint = (hue: number): string => `oklch(0.245 0.03 ${hue})`;
