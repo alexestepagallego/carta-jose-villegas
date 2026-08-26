@@ -25,6 +25,8 @@
   --note-bg: #1f1d19;
   /* Superficie ligeramente elevada: el botón de volver de la ficha. */
   --surface: #211f1b;
+  /* Presencia del bucle de fondo de la portada. */
+  --hero-video-opacity: 0.22;
 
   /* Alto de la cabecera con el logo. Lo descuenta la zona de franjas. */
   --bar-h: 92px;
@@ -92,13 +94,18 @@ body {
   justify-items: center;
 }
 
+/* Bucle de fondo. La opacidad es el mando: sobre fondo oscuro hace falta algo
+   más que el 0,14 que pedía el diseño sobre papel claro, porque el negro se come
+   la imagen. El velo de debajo se encarga de que no compita con el logo. */
 .hero-bg {
   position: absolute;
   inset: 0;
-  opacity: 0.14;
+  opacity: var(--hero-video-opacity);
   filter: grayscale(0.3);
+  pointer-events: none;
 }
 
+.hero-bg video,
 .hero-bg img {
   display: block;
   width: 100%;

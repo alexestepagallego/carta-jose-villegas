@@ -51,6 +51,36 @@ scripts/prepare-logo.mjs   Recorta el fondo del logo con alfa real
   que cada cuña responde solo en su área. Las fichas son `role="dialog"` y se
   cierran también con `Escape`.
 
+## El bucle de fondo de la portada
+
+Detrás del logo va un vídeo corto en bucle, a baja opacidad. Lo que hay ahora es
+un **marcador de posición** generado con `npm run placeholder:video`
+(`scripts/make-placeholder-video.mjs`): un resplandor cálido que deriva despacio,
+con el texto de aviso encima. No es contenido definitivo.
+
+**Para poner el vídeo real** deja los ficheros en `public/portada/` y cambia el
+nombre en la constante `video` de `components/Hero.astro`. Nada más.
+
+Qué debe cumplir el fichero:
+
+| | |
+|---|---|
+| Formato | **MP4 H.264, `yuv420p`, con `+faststart`.** iOS no reproduce otra cosa de forma fiable, y `faststart` evita esperar a la descarga completa. Un WebM VP9 al lado es opcional y ahorra bastante. |
+| Proporción | Vertical, 9:16 (720 × 1280 va sobrado). Se recorta con `object-fit: cover`, así que lo importante debe quedar centrado. |
+| Duración | 4–8 s, y que **el último fotograma enlace con el primero**: el bucle se ve entero muchas veces. |
+| Audio | Ninguno. El autoplay exige silencio y la pista solo añade peso. |
+| Peso | Por debajo de ~1,5 MB. Se carga en la primera pantalla, muchas veces con datos móviles en el propio local. |
+| Póster | Un `.jpg` con el mismo nombre. Es lo que se ve mientras carga y lo que queda fijo con movimiento reducido. |
+
+La presencia se ajusta con `--hero-video-opacity` (0,22). Sobre fondo oscuro hace
+falta algo más que el 0,14 que pedía el diseño sobre papel claro, porque el negro
+se come la imagen.
+
+El vídeo va en autoplay, y eso no vale para quien ha pedido reducir el movimiento:
+`lib/hero.ts` lo detiene y deja el póster, atendiendo también al cambio de
+preferencia en caliente. Si el navegador rechaza el autoplay, el póster se queda y
+la portada funciona igual.
+
 ## Paleta
 
 La carta va en **oscuro**. La paleta conserva el tono cálido del papel original
@@ -115,7 +145,14 @@ intermedios por cambio de categoría. Con `prefers-reduced-motion` no se suaviza
 trae al frente —se amplía, toma color y aparece su CTA—; la ficha se abre con un
 segundo toque, ya sobre la franja activa. El primer toque lleva el scroll a su
 anclaje, así que la categoría activa la sigue decidiendo la posición del scroll y
-no hay dos fuentes de verdad. La etiqueta accesible acompaña: `Ir a ROSCAS` en
+no hay dos fuentes de verdad.
+
+El recorrido de ese primer toque se anima a mano (`TAP_TRAVEL_MS`) en vez de con
+`behavior: "smooth"`: el scroll suave nativo se comporta distinto en cada
+navegador y encima choca con `scroll-snap-type: mandatory`, que corrige las
+posiciones intermedias. Se desactiva el snap mientras dura el recorrido y se
+restaura al llegar; si el dedo o la rueda se mueven, el recorrido se aparta.
+Medido, Chromium y WebKit dan ahora el mismo resultado: 42 fotogramas. La etiqueta accesible acompaña: `Ir a ROSCAS` en
 reposo, `ROSCAS — ver los 6 platos` cuando ya está activa.
 
 ## Diferencias respecto al prototipo
@@ -169,9 +206,8 @@ SITE_URL=https://alexestepagallego.github.io BASE_PATH=/carta-jose-villegas npm 
 
 ## Pendiente
 
-- **Foto de fondo de la portada**: el cliente no la ha entregado. Cuando llegue, va
-  en `src/assets/local.jpg` y se descomenta el bloque marcado en
-  `components/Hero.astro`.
+- **Vídeo de fondo de la portada**: lo graba el cliente. Hasta que llegue hay un
+  marcador de posición generado; cómo sustituirlo, más arriba.
 - **Alérgenos**: se retiraron a propósito del prototipo porque deducirlos de los
   ingredientes producía afirmaciones falsas. Hace falta la tabla oficial por plato
   del restaurante antes de mostrarlos.

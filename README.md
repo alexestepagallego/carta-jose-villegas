@@ -21,7 +21,8 @@ copys— y no como algo que haya que integrar.
 
 Funciona y está verificado en navegador. Pendiente antes de publicar de verdad:
 
-- La foto de fondo de la portada, que el cliente aún no ha entregado.
+- El vídeo en bucle de la portada, que graba el cliente: por ahora hay un
+  marcador de posición generado.
 - La tabla oficial de alérgenos por plato (se retiraron a propósito: deducirlos de
   los ingredientes producía afirmaciones falsas).
 - Confirmar con el restaurante las erratas de la carta, que se transcriben

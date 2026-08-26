@@ -44,6 +44,26 @@ const BAR_THRESHOLD = 0.35;
  */
 const RESPONSE = 0.22;
 
+/** Duración del recorrido al tocar una franja en reposo. */
+const TAP_TRAVEL_MS = 520;
+
+/**
+ * La curva de salida del diseño, cubic-bezier(.32, .72, 0, 1), resuelta por
+ * bisección: solo hace falta y(x), y con ocho pasos el error es inapreciable.
+ */
+function easeOut(x: number): number {
+  const bezier = (t: number, a: number, b: number) =>
+    3 * (1 - t) ** 2 * t * a + 3 * (1 - t) * t ** 2 * b + t ** 3;
+  let lo = 0;
+  let hi = 1;
+  for (let k = 0; k < 8; k++) {
+    const mid = (lo + hi) / 2;
+    if (bezier(mid, 0.32, 0) < x) lo = mid;
+    else hi = mid;
+  }
+  return bezier((lo + hi) / 2, 0.72, 1);
+}
+
 export function initMenu(root: ParentNode = document): () => void {
   const scroller = root.querySelector<HTMLElement>('[data-scroller]');
   const bar = root.querySelector<HTMLElement>('[data-bar]');
@@ -160,13 +180,55 @@ export function initMenu(root: ParentNode = document): () => void {
     }
   }
 
-  /** Lleva el scroll al anclaje de una categoría; el bucle hace el resto. */
+  /**
+   * Lleva el scroll al anclaje de una categoría; el bucle de render hace el resto.
+   *
+   * El recorrido se anima a mano en vez de con `behavior: "smooth"`: el
+   * comportamiento del scroll suave nativo varía entre navegadores y encima
+   * choca con `scroll-snap-type: mandatory`, que corrige las posiciones
+   * intermedias. Se desactiva el snap mientras dura el recorrido y se restaura
+   * al llegar, así el resultado es el mismo en todos.
+   */
+  let travel = 0;
+
   function goTo(i: number) {
     const viewport = scroller!.clientHeight || 1;
-    scroller!.scrollTo({
-      top: viewport * (i + 1),
-      behavior: reducedMotion.matches ? 'auto' : 'smooth',
-    });
+    const to = viewport * (i + 1);
+    const from = scroller!.scrollTop;
+
+    cancelAnimationFrame(travel);
+    if (reducedMotion.matches || from === to) {
+      scroller!.scrollTop = to;
+      return;
+    }
+
+    const start = performance.now();
+    scroller!.style.scrollSnapType = 'none';
+
+    const step = (now: number) => {
+      const t = Math.min(1, (now - start) / TAP_TRAVEL_MS);
+      scroller!.scrollTop = from + (to - from) * easeOut(t);
+      if (t < 1) {
+        travel = requestAnimationFrame(step);
+      } else {
+        travel = 0;
+        scroller!.scrollTop = to;
+        scroller!.style.scrollSnapType = '';
+      }
+    };
+    travel = requestAnimationFrame(step);
+  }
+
+  /**
+   * Si el dedo o la rueda se mueven, el recorrido automático se aparta. Se
+   * escucha el movimiento y no el inicio del gesto: un toque en una franja
+   * también empieza por pointerdown/touchstart y se cancelaría a sí mismo.
+   */
+  function cancelTravel() {
+    if (!travel) return;
+    cancelAnimationFrame(travel);
+    travel = 0;
+    scroller!.style.scrollSnapType = '';
   }
 
   function openSheet(i: number) {
@@ -204,6 +266,8 @@ export function initMenu(root: ParentNode = document): () => void {
   };
 
   scroller.addEventListener('scroll', onScroll, { passive: true });
+  scroller.addEventListener('touchmove', cancelTravel, { passive: true });
+  scroller.addEventListener('wheel', cancelTravel, { passive: true });
   window.addEventListener('resize', onResize);
   document.addEventListener('keydown', onKeydown);
 
@@ -211,7 +275,10 @@ export function initMenu(root: ParentNode = document): () => void {
 
   return () => {
     cancelAnimationFrame(frame);
+    cancelTravel();
     scroller.removeEventListener('scroll', onScroll);
+    scroller.removeEventListener('touchmove', cancelTravel);
+    scroller.removeEventListener('wheel', cancelTravel);
     window.removeEventListener('resize', onResize);
     document.removeEventListener('keydown', onKeydown);
   };

@@ -8,7 +8,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
-    "prepare:logo": "node scripts/prepare-logo.mjs ../assets/logo.png src/assets/logo.png"
+    "prepare:logo": "node scripts/prepare-logo.mjs ../assets/logo.png src/assets/logo.png",
+    "placeholder:video": "node scripts/make-placeholder-video.mjs"
   },
   "dependencies": {
     "@fontsource-variable/archivo": "^5.3.0",
