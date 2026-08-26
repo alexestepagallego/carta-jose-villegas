@@ -5,16 +5,17 @@ import { CATEGORIES, accent, tint, dishCount } from '../data/carta';
 import {
   layout,
   stackShift,
-  activePhoto,
+  activeWeights,
+  photoPlacement,
+  photoFilter,
   CANVAS_SCREENS,
-  IDLE_PHOTO_SCALE,
-  IDLE_PHOTO_OFFSET,
 } from '../lib/geometry';
 
 // Estado inicial (categoría 0 activa) resuelto en el build: la primera pintura
 // ya sale con la geometría y el desplazamiento correctos, sin salto al hidratar.
 const initial = layout(0, CATEGORIES.length);
 const initialShift = stackShift(initial, 0);
+const initialWeights = activeWeights(0, CATEGORIES.length);
 ---
 
 <div class="cats">
@@ -37,18 +38,11 @@ const initialShift = stackShift(initial, 0);
           const on = i === 0;
           const { clipPath, topEdge } = initial[i];
           const side = cat.side === 'left' ? 'side-l' : 'side-r';
-          // Activa: se escala con la franja y se ancla por abajo, para que
-          // desborde sobre la categoría siguiente. En reposo: bajo su borde superior.
-          const photo = on
-            ? activePhoto(initial[i], cat)
-            : {
-                width: `${Math.round(cat.w * IDLE_PHOTO_SCALE)}px`,
-                height: `${Math.round(cat.h * IDLE_PHOTO_SCALE)}px`,
-                top: `calc(${topEdge}% + ${IDLE_PHOTO_OFFSET}px)`,
-              };
-          const photoStyle = Object.entries(photo)
+          const photo = photoPlacement(initial[i], cat, initialWeights[i]);
+          const photoStyle = `${Object.entries(photo)
             .map(([k, v]) => `${k}:${v}`)
-            .join(';');
+            .join(';')};filter:${photoFilter(initialWeights[i])}`;
+
           const platos = dishCount(cat);
 
           return (
@@ -74,6 +68,7 @@ const initialShift = stackShift(initial, 0);
                 style={photoStyle}
                 width={cat.w}
                 height={cat.h}
+                fit="inside"
                 densities={[2, 3]}
                 format="webp"
                 quality={80}

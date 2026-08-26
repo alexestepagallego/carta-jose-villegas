@@ -53,11 +53,29 @@ export interface BandGeometry {
  *   así que los márgenes y las inclinaciones se dividen entre `screens` para
  *   que se vean igual que en el diseño original independientemente de su alto.
  */
+/**
+ * Cuánto de "activa" tiene cada franja, entre 0 y 1, para una posición continua.
+ *
+ * En un entero vale 1 para esa franja y 0 para el resto; entre dos categorías se
+ * reparte entre ambas. La suma siempre es 1, así que el reparto de altura sigue
+ * cuadrando. Es lo que permite que las franjas se transformen ligadas al scroll
+ * en vez de saltar de un estado al siguiente.
+ */
+export function activeWeights(active: number, n: number): number[] {
+  const k = Math.floor(active);
+  const f = active - k;
+  return Array.from({ length: n }, (_, i) => (i === k ? 1 - f : i === k + 1 ? f : 0));
+}
+
+const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+
+/** @param active posición continua: 2.4 es "entre la 2 y la 3, más cerca de la 2". */
 export function layout(active: number, n: number, screens = CANVAS_SCREENS): BandGeometry[] {
   const rest = (1 - ACTIVE_SHARE) / (n - 1);
+  const weights = activeWeights(active, n);
 
   const cum = [0];
-  for (let i = 0; i < n; i++) cum.push(cum[i] + (i === active ? ACTIVE_SHARE : rest));
+  for (let i = 0; i < n; i++) cum.push(cum[i] + rest + (ACTIVE_SHARE - rest) * weights[i]);
 
   const pad = PAD / screens;
   const base = cum.map((c) => pad + c * (100 - pad * 2));
@@ -81,8 +99,10 @@ export function stackShift(
   active: number,
   screens = CANVAS_SCREENS,
 ): number {
-  const band = geometry[active];
-  const centerPct = (band.topEdge + band.bottomEdge) / 2;
+  const center = (b: BandGeometry) => (b.topEdge + b.bottomEdge) / 2;
+  const k = Math.floor(active);
+  const next = geometry[k + 1];
+  const centerPct = next ? lerp(center(geometry[k]), center(next), active - k) : center(geometry[k]);
   return 0.5 - (centerPct / 100) * screens;
 }
 
@@ -101,23 +121,42 @@ const PHOTO_OVERFLOW = 0.15;
 export interface PhotoPlacement {
   width: string;
   height: string;
-  /** Ancla la foto al borde inferior de su franja, no al superior. */
-  bottom: string;
+  top: string;
 }
 
 /**
- * Coloca la foto de la franja activa.
+ * Coloca la foto de una franja según lo activa que esté (0…1).
  *
- * Conserva el tamaño nominal del diseño —crecer con la franja la hacía invadir
- * el nombre de la categoría siguiente, colisión que el diseño evita alternando
- * lados— y la ancla por abajo, de modo que el desbordamiento sobre la categoría
- * siguiente se mantiene sea cual sea el alto de la franja.
+ * En reposo cuelga de su borde superior y mide el 30 %; activa, mide el tamaño
+ * nominal del diseño y se ancla al borde inferior, de modo que desborda sobre la
+ * categoría siguiente. Entre medias todo se interpola, así que la foto acompaña
+ * al dedo en vez de saltar entre dos estados.
+ *
+ * Mantiene el tamaño nominal en el extremo activo: escalarla con la franja la
+ * hacía invadir el nombre de la categoría siguiente, colisión que el diseño evita
+ * alternando los lados.
  */
-export function activePhoto(band: BandGeometry, nominal: { w: number; h: number }): PhotoPlacement {
+export function photoPlacement(
+  band: BandGeometry,
+  nominal: { w: number; h: number },
+  weight: number,
+): PhotoPlacement {
+  const scale = lerp(IDLE_PHOTO_SCALE, 1, weight);
+  const height = nominal.h * scale;
+
+  // En reposo: bajo el borde superior. Activa: el borde inferior de la foto cae
+  // PHOTO_OVERFLOW por debajo del borde inferior de la franja.
+  const anchorPct = lerp(band.topEdge, band.bottomEdge, weight);
+  const anchorPx = lerp(IDLE_PHOTO_OFFSET, PHOTO_OVERFLOW * height - height, weight);
+
   return {
-    width: `${nominal.w}px`,
-    height: `${nominal.h}px`,
-    // El borde inferior de la franja está a (100 − bottomEdge)% del fondo del lienzo.
-    bottom: `calc(${(100 - band.bottomEdge).toFixed(3)}% - ${Math.round(nominal.h * PHOTO_OVERFLOW)}px)`,
+    width: `${(nominal.w * scale).toFixed(1)}px`,
+    height: `${height.toFixed(1)}px`,
+    top: `calc(${anchorPct.toFixed(3)}% + ${anchorPx.toFixed(1)}px)`,
   };
+}
+
+/** Filtro de la foto: gris y apagada en reposo, limpia cuando está activa. */
+export function photoFilter(weight: number): string {
+  return `grayscale(${(1 - weight).toFixed(3)}) opacity(${lerp(0.5, 1, weight).toFixed(3)})`;
 }

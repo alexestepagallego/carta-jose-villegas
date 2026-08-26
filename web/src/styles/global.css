@@ -225,7 +225,6 @@ body {
   right: 0;
   height: calc(var(--stage-h) * var(--canvas-screens));
   transform: translateY(calc(var(--stage-h) * var(--shift)));
-  transition: transform 0.62s var(--ease);
   will-change: transform;
 }
 
@@ -250,8 +249,9 @@ body {
   border: 0;
   border-top: 1px solid var(--grey-line);
   border-bottom: 1px solid var(--grey-line);
+  /* El clip-path lo lleva el bucle ligado al scroll, sin transición: solo el
+     color se anima por tiempo, que no compite con el desplazamiento. */
   transition:
-    clip-path 0.62s var(--ease),
     background 0.5s linear,
     border-color 0.5s linear;
 }
@@ -269,18 +269,11 @@ body {
   z-index: 3;
   pointer-events: none;
   object-fit: contain;
-  filter: grayscale(1) opacity(0.5);
-  transition:
-    top 0.62s var(--ease),
-    bottom 0.62s var(--ease),
-    width 0.62s var(--ease),
-    height 0.62s var(--ease),
-    filter 0.5s linear;
+  /* Tamaño, posición y filtro los interpola el bucle ligado al scroll. */
 }
 
 .photo.is-on {
   z-index: 5;
-  filter: none;
 }
 
 .name,
@@ -296,7 +289,6 @@ body {
   font: 400 15px / 1 var(--display);
   letter-spacing: 0.12em;
   transition:
-    top 0.62s var(--ease),
     font-size 0.5s var(--ease),
     color 0.5s linear,
     letter-spacing 0.5s linear;
@@ -314,7 +306,6 @@ body {
   text-transform: uppercase;
   opacity: 0;
   transition:
-    top 0.62s var(--ease),
     opacity 0.4s linear,
     color 0.5s linear;
 }

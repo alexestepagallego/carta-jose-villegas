@@ -69,6 +69,23 @@ diseño sea cual sea el alto de la franja. Mantiene su tamaño nominal: escalarl
 la franja la hacía invadir el nombre de la categoría siguiente, colisión que el
 diseño evita alternando los lados.
 
+**El índice va ligado a la posición del scroll, no a transiciones CSS.** La
+posición se lee como un número continuo (2,4 = "entre la 2 y la 3") y las franjas
+se redibujan por fotograma; encima, la posición dibujada persigue a la real con un
+suavizado exponencial (`RESPONSE` en `lib/menu.ts`).
+
+Hacen falta las dos cosas, y por motivos opuestos:
+
+- Con transiciones CSS por tiempo, en móvil el índice iba por detrás del dedo: el
+  snap táctil se resuelve casi de golpe y la animación de 0,62 s llegaba tarde, así
+  que se veía como un salto. Ligarlo al scroll lo pega al dedo.
+- Pero con `scroll-snap-type: mandatory`, la rueda y el trackpad saltan de anclaje
+  a anclaje sin pasar por las posiciones intermedias. Sin el suavizado, el salto se
+  vería igual de brusco en el escritorio.
+
+Medido en Chromium y en WebKit, ambos escenarios dan más de 30 fotogramas
+intermedios por cambio de categoría. Con `prefers-reduced-motion` no se suaviza.
+
 **Tocar una franja tiene dos pasos.** Un toque sobre una franja en reposo solo la
 trae al frente —se amplía, toma color y aparece su CTA—; la ficha se abre con un
 segundo toque, ya sobre la franja activa. El primer toque lleva el scroll a su
@@ -93,6 +110,13 @@ Dos cosas que el prototipo tenía y aquí están resueltas:
    parche.
 
 `npm run prepare:logo` regenera `src/assets/logo.png` desde `../assets/logo.png`.
+
+3. **Fotos de categoría recortadas por los lados.** Ninguno de los cinco PNG tiene
+   la proporción de su encuadre nominal —el del bocadillo se desvía un 40 %— y
+   `<Image>` con ancho *y* alto recorta para llenar (`fit: "cover"` por defecto).
+   El prototipo usaba `background-size: contain`, que encaja sin recortar. Se
+   arregla con `fit="inside"`: Astro genera la foto a su proporción real y la caja
+   nominal la sigue poniendo el CSS con `object-fit: contain`.
 
 ## Despliegue
 
